@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "admin-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/adminForm/AdminFormWebPart.js",
+          "manifest": "./src/webparts/adminForm/AdminFormWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "AdminFormWebPartStrings": "lib/webparts/adminForm/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+  }
+}
