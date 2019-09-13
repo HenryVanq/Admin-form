@@ -1,6 +1,6 @@
-.form-group .ms-TextField-fieldGroup.fieldGroup-153 {
+/* .form-group .ms-TextField-fieldGroup.fieldGroup-153 {
   border: 0;
-}
+} */
 
 .ms-BasePicker-text {
   border: 0;
@@ -34,4 +34,12 @@ button#buttonGenPass {
 
 input#fileUploadInput {
   height: 2.9em;
+}
+
+.ms-TextField-fieldGroup {
+  border: none;
+}
+
+.ms-Toggle.is-enabled.root-163 {
+  padding-top: 1em;
 }
