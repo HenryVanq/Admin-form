@@ -43,3 +43,7 @@ input#fileUploadInput {
 .ms-Toggle.is-enabled.root-163 {
   padding-top: 1em;
 }
+
+input#date {
+  height: 2.9em;
+}

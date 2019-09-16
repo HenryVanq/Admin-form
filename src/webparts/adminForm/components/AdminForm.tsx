@@ -8,7 +8,7 @@ import { TaxonomyPicker, IPickerTerms } from "@pnp/spfx-controls-react/lib/Taxon
 import { DateTimePicker, DateConvention, TimeConvention } from '@pnp/spfx-controls-react/lib/dateTimePicker';
 import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { IReactSpFxPnP } from "../Model/IReactSpFxPnP";
-import { default as pnp, ItemUpdateResult, Web, Item, sp } from "sp-pnp-js";
+import { default as pnp, ItemUpdateResult, Web, Item, sp, ItemAddResult } from "sp-pnp-js";
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/components/Button';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
@@ -41,7 +41,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     this.handleFileName = this.handleFileName.bind(this);
     this.handleReferenceNumberIn = this.handleReferenceNumberIn.bind(this);
     this.handleReferenceNumberOut = this.handleReferenceNumberOut.bind(this);
-    this.handleReferenceNumberOutDate = this.handleReferenceNumberOutDate.bind(this).to
+    this.handleDate = this.handleDate.bind(this)
     this.handleVerificationCode = this.handleVerificationCode.bind(this);
     this.handleFullname = this.handleFullname.bind(this);
     this.handleOrganization = this.handleOrganization.bind(this);
@@ -58,6 +58,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     //this.onTaxPickerChange = this.onTaxPickerChange.bind(this);
     this._getManager = this._getManager.bind(this);
     this.state = {
+      date: "",
       fileName: "",
       requestDate: "",
       Fullname: "",
@@ -86,7 +87,9 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       isChecked: false,
       required: "This is required",
       onSubmission: false,
-      termnCond: false
+      termnCond: false,
+
+
     }
   }
 
@@ -100,7 +103,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
         requesterEmail: ((item.RequesterEmail == null) ? "" : item.RequesterEmail),
         referenceNumberIn: ((item.ReferenceNumberIn == null) ? "" : item.ReferenceNumberIn),
         referenceNumberOut: ((item.ReferenceNumberOut == null) ? "" : item.ReferenceNumberOut),
-        referenceNumberOutDate: ((item.ReferenceNumberOutDate == null) ? "" : item.ReferenceNumberOutDate),
+        //referenceNumberOutDate: ((item.ReferenceNumberOutDate == null) ? "" : item.ReferenceNumberOutDate),
         verificationCode: ((item.VerificationCode == null) ? "" : item.VerificationCode),
         decryption: ((item.Decryption == null) ? "" : item.Decryption),
         Fullname: ((item.Fullname == null) ? "" : item.Fullname),
@@ -110,6 +113,10 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
         Reason: ((item.Reason == null) ? "" : item.Reason)
       });
     });
+
+    let todayDateobj = new Date().toISOString().substr(0, 10);
+    $('#date').val(todayDateobj)
+
 
     $('#fileUpload').hide()
   }
@@ -133,7 +140,10 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
         <div className="card" style={{ border: 'none' }}>
           <div className="card-header text-white bg-dark mb-3" >
             <h5> Στοιχεία Αίτησης </h5>
-          </div> <br></br>
+          </div>
+
+          <br></br>
+          <br></br>
 
           <div className="form-row" >
             <div className="form-group col-md-6">
@@ -158,6 +168,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
               />
             </div>
           </div>
+          <br></br>
 
           <div className="form-row" >
             <div className="form-group col-md-6">
@@ -173,6 +184,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
               />
             </div>
           </div>
+          <br></br>
 
           <div className="form-row" >
             <div className="form-group col-md-6">
@@ -187,58 +199,60 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
                 errorMessage={(this.state.Email.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Email" />
             </div>
           </div>
+          <br></br>
 
           <div className="form-group"  >
             <label><h6> Αιτιολογία </h6></label>
-
-
           </div>
           <TextField className="form-control" readOnly multiline={true} value={this.state.Reason} required={true} onChanged={this.handleReason}
             errorMessage={(this.state.Reason.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Αιτιολογία" />
           <br></br>
+          <br></br>
 
           <div className="card-header text-white bg-dark mb-3" >
             <h5> Φορμα Διαχειριστή</h5>
-          </div> <br></br>
+          </div>
+
+          <br></br>
+          <br></br>
+
+          <div className="form-group" >
+            <label> <h6> Παραλήπτης </h6></label>
+            <div className="form-control" id="PeoplePickerBorder">
+              <PeoplePicker
+                context={this.props.context}
+                personSelectionLimit={1}
+                groupName={""} // Leave this blank in case you want to filter from all users    
+                showtooltip={true}
+                isRequired={true}
+                disabled={false}
+                ensureUser={true}
+                //selectedItems={this._getManager}
+                selectedItems={this._getManager}
+                showHiddenInUI={false}
+                principalTypes={[PrincipalType.User]}
+                resolveDelay={1000} />
+            </div>
+          </div>
+          <br></br>
 
           <div className="form-row" >
-            <div className="form-group col-md-6">
+            <div className="form-group col-md-4">
               <label> <h6 >Αρ. Πρωτ. Εισερχομένου </h6></label>
               <TextField className="form-control" value={this.state.referenceNumberIn} required={true} onChanged={this.handleReferenceNumberIn}
                 errorMessage={(this.state.referenceNumberIn.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Αρ. Πρωτ. Εισερχομένου " />
             </div>
 
-            <div className="form-group col-md-6">
+            <div className="form-group col-md-4">
               <label> <h6> Ημερομηνία Αίτησης</h6></label>
               <TextField className="form-control" readOnly value={this.state.requestDate} required={true} onChanged={this.handleRequestDate}
                 errorMessage={(this.state.requestDate.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Ημερομηνία Αίτησης" />
             </div>
-          </div>
 
-          <div className="form-row" >
-            <div className="form-group col-md-6">
+            <div className="form-group col-md-4">
               <label> <h6> Email Αιτούντα </h6></label>
               <TextField className="form-control" readOnly value={this.state.requesterEmail} required={true} onChanged={this.handleRequesterEmail}
                 errorMessage={(this.state.requesterEmail.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Email Αιτούντα " />
-            </div>
-
-            <div className="form-group col-md-6">
-              <label> <h6> Παραλήπτης </h6></label>
-              <div className="form-control" id="PeoplePickerBorder">
-                <PeoplePicker
-                  context={this.props.context}
-                  personSelectionLimit={1}
-                  groupName={""} // Leave this blank in case you want to filter from all users    
-                  showtooltip={true}
-                  isRequired={true}
-                  disabled={false}
-                  ensureUser={true}
-                  //selectedItems={this._getManager}
-                  selectedItems={this._getManager}
-                  showHiddenInUI={false}
-                  principalTypes={[PrincipalType.User]}
-                  resolveDelay={1000} />
-              </div>
             </div>
           </div>
           <br></br>
@@ -249,8 +263,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
               <TextField className="form-control" value={this.state.verificationCode} required={true} onChanged={this.handleVerificationCode}
                 errorMessage={(this.state.verificationCode.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Κωδικός Επιβεβαίωσης" />
             </div>
-
-
             <div className="form-group col-md-4">
               <label> <h6> Αρ. Πρωτ. Εξερχομένου </h6></label>
               <TextField className="form-control" value={this.state.referenceNumberOut} required={true} onChanged={this.handleReferenceNumberOut}
@@ -259,24 +271,26 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
             <div className="form-group col-md-4">
               <label> <h6> Ημερομηνία Εξερχομένου </h6></label>
-              <div className="form-control" >
 
-
-                <DateTimePicker
-                  dateConvention={DateConvention.Date}
-                  onChange={this.handleReferenceNumberOutDate}
-                  label={""}
-                // value={this.state.referenceNumberOutDate}
-                />
-              </div>
+              <input
+                id="date"
+                type="date"
+                className="form-control"
+                name="date"
+                style={{ height: '2.9em' }}
+                formNoValidate
+                onChange={this.handleDate} />
             </div>
-
             {/* <div className="form-group col-md-4">
               <label> <h6> Ημερομηνία Εξερχομένου </h6></label>
               <TextField className="form-control" value={this.state.referenceNumberOutDate} required={true} onChanged={this.handleReferenceNumberOutDate}
                 errorMessage={(this.state.referenceNumberOutDate.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Ημερομηνία Εξερχομένου" />
             </div> */}
           </div>
+
+          <br></br>
+          <br></br>
+          <br></br>
 
 
 
@@ -307,13 +321,29 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
         </div>
 
         <br></br>
+        <br></br>
 
         {/* <PrimaryButton text="Create" onClick={() => { this.validateForm(); }} /> */}
         <PrimaryButton id="btnForm" className="btn btn-success btn-lg btn-block" onClick={() => {
-          if ($('#fileUploadInput').val() != "" && this.state.decryption != "" && this.state.userManagerIDs.length >= 1 && this.state.referenceNumberOut != "" && this.state.referenceNumberIn && this.state.verificationCode != "" && this.state.referenceNumberOutDate != null) {
+          if ($('#fileUploadInput').val() != ""
 
-            this.updateItem();
-            this.uploadingFileEventHandlers();
+            && this.state.userManagerIDs.length >= 1
+            && this.state.referenceNumberOut != ""
+            && this.state.referenceNumberIn
+            && this.state.verificationCode != ""
+            && this.state.referenceNumberOutDate != null
+            && this.state.decryption != ""
+          ) {
+
+            if ($('#date').val() === "") {
+              alert("Παρακαλω επιλέξτε την ημερομηνία")
+            } else {
+
+              this.updateItem();
+              this.uploadingFileEventHandlers();
+            }
+
+
           } else {
             alert("Παρακαλώ συμπληρώστε όλα τα πεδία")
           }
@@ -322,6 +352,15 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       </form>
     );
   }
+
+  private todayDate() {
+
+    let today = new Date().toISOString().substr(0, 10);
+    $('#today').val('dd-mm-yyy')
+
+
+  }
+
 
 
 
@@ -333,7 +372,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     if (fileUpload) {
       this.uploadFiles(test1);
       alert("Το αρχείο αναρτήθηκε επιτυχώς")
-
     }
   }
 
@@ -377,9 +415,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       RequestId: parseInt(idd),
       ReferenceNumberIn: this.state.referenceNumberIn,
       ReferenceNumberOut: this.state.referenceNumberOut,
-      ReferenceNumberOutDate: this.state.referenceNumberOutDate,
+      ReferenceNumberOutDate: this.state.date.toString(),
       VerificationCode: this.state.verificationCode,
-      Decryption: this.state.decryption
+      Decryption: this.state.decryption,
+      // refDateOut: this.state.date.toString()
+    }).then((iar: ItemAddResult) => {
+      console.log(iar);
     });
 
 
@@ -513,10 +554,17 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       referenceNumberOut: value
     });
   }
-  private handleReferenceNumberOutDate(value: Date): void {
+  // private handleReferenceNumberOutDate(value: Date): void {
+  //   return this.setState({
+  //     referenceNumberOutDate: value
+  //   });
+  // }
+
+  private handleDate(e) {
     return this.setState({
-      referenceNumberOutDate: value
-    });
+      date: e.target.value,
+    })
+
   }
   private handleVerificationCode(value: string): void {
     return this.setState({
