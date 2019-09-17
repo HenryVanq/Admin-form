@@ -2,7 +2,7 @@ import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/components
 
 export interface IReactSpFxPnP {
   selectedItems: any[];
-  fileName: string;
+  request: string;
   requestDate: string;
   requesterEmail: string;
   referenceNumberIn: string;

@@ -27,7 +27,7 @@ import './custom.css';
 var queryParms = new UrlQueryParameterCollection(window.location.href);
 var idd = queryParms.getValue("idd");
 var iddd = queryParms.getValue("iddd");
-let siteUrl = "https://cloudlabgr.sharepoint.com/sites/IDIKA";
+let siteUrl = "https://idikagr.sharepoint.com/sites/ExternalSharing";
 let web = new Web(siteUrl);
 let cssUrl = 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css';
 SPComponentLoader.loadCss(cssUrl)
@@ -38,7 +38,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     super(props);
     this.handleRequesterEmail = this.handleRequesterEmail.bind(this);
     this.handleRequestDate = this.handleRequestDate.bind(this);
-    this.handleFileName = this.handleFileName.bind(this);
+    this.handleRequest = this.handleRequest.bind(this);
     this.handleReferenceNumberIn = this.handleReferenceNumberIn.bind(this);
     this.handleReferenceNumberOut = this.handleReferenceNumberOut.bind(this);
     this.handleDate = this.handleDate.bind(this)
@@ -59,7 +59,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     this._getManager = this._getManager.bind(this);
     this.state = {
       date: "",
-      fileName: "",
+      request: "",
       requestDate: "",
       Fullname: "",
       Organization: "",
@@ -69,7 +69,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       requesterEmail: "",
       referenceNumberIn: "",
       referenceNumberOut: "",
-      referenceNumberOutDate: new Date(""),
+      referenceNumberOutDate: new Date(),
       verificationCode: "",
       decryption: "",
       description: "",
@@ -94,23 +94,32 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
   }
 
   componentDidMount() {
+
     pnp.sp.web.lists.getByTitle("Requests").items.getById(parseInt(idd)).get().then((item: any) => {
       let dateobj = new Date(item.RequestDate);
-      console.log(item.RequesterId)
+      console.log(item.ReceiverId)
       this.setState({
-        fileName: ((item.FileName == null) ? "" : item.FileName),
-        requestDate: ((item.RequestDate == null) ? "" : dateobj.toLocaleDateString('en-GB')),
-        requesterEmail: ((item.RequesterEmail == null) ? "" : item.RequesterEmail),
-        referenceNumberIn: ((item.ReferenceNumberIn == null) ? "" : item.ReferenceNumberIn),
-        referenceNumberOut: ((item.ReferenceNumberOut == null) ? "" : item.ReferenceNumberOut),
-        //referenceNumberOutDate: ((item.ReferenceNumberOutDate == null) ? "" : item.ReferenceNumberOutDate),
-        verificationCode: ((item.VerificationCode == null) ? "" : item.VerificationCode),
-        decryption: ((item.Decryption == null) ? "" : item.Decryption),
+        request: ((item.Request == null) ? "" : item.Request),
         Fullname: ((item.Fullname == null) ? "" : item.Fullname),
         Organization: ((item.Organization == null) ? "" : item.Organization),
         PhoneNumber: ((item.PhoneNumber == null) ? "" : item.PhoneNumber),
         Email: ((item.Email == null) ? "" : item.Email),
-        Reason: ((item.Reason == null) ? "" : item.Reason)
+        Reason: ((item.Reason == null) ? "" : item.Reason),
+        requestDate: ((item.RequestDate == null) ? "" : dateobj.toLocaleDateString('en-GB')),
+        referenceNumberIn: ((item.ReferenceNumberIn == null) ? "" : item.ReferenceNumberIn),
+
+
+
+        requesterEmail: ((item.RequesterEmail == null) ? "" : item.RequesterEmail),
+        referenceNumberOut: ((item.ReferenceNumberOut == null) ? "" : item.ReferenceNumberOut),
+        //referenceNumberOutDate: ((item.ReferenceNumberOutDate == null) ? "" : item.ReferenceNumberOutDate),
+        verificationCode: ((item.VerificationCode == null) ? "" : item.VerificationCode),
+        decryption: ((item.Decryption == null) ? "" : item.Decryption),
+
+
+
+
+
       });
     });
 
@@ -123,7 +132,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
   public render(): React.ReactElement<IAdminFormProps> {
     const { dpselectedItem, dpselectedItems } = this.state;
-    const { fileName, requestDate, requesterEmail, Fullname, Organization, PhoneNumber, Email, Reason } = this.state;
+    const { request, requestDate, requesterEmail, Fullname, Organization, PhoneNumber, Email, Reason } = this.state;
     pnp.setup({
       spfxContext: this.props.context
     });
@@ -149,8 +158,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
             <div className="form-group col-md-6">
               <label><h6> Όνομα Αιτήματος </h6></label>
 
-              <TextField className="form-control" readOnly value={this.state.fileName} required={true} onChanged={this.handleFileName}
-                errorMessage={(this.state.fileName.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Όνομα Αιτήματος" />
+              <TextField className="form-control" readOnly value={this.state.request} required={true} onChanged={this.handleRequest}
+                errorMessage={(this.state.request.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Όνομα Αιτήματος" />
             </div>
             <div className="form-group col-md-6 text-center">
               <label> <h6> Το αίτημα ολοκληρώθηκε </h6></label>
@@ -216,60 +225,63 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           <br></br>
           <br></br>
 
-          <div className="form-group" >
-            <label> <h6> Παραλήπτης </h6></label>
-            <div className="form-control" id="PeoplePickerBorder">
-              <PeoplePicker
-                context={this.props.context}
-                personSelectionLimit={1}
-                groupName={""} // Leave this blank in case you want to filter from all users    
-                showtooltip={true}
-                isRequired={true}
-                disabled={false}
-                ensureUser={true}
-                //selectedItems={this._getManager}
-                selectedItems={this._getManager}
-                showHiddenInUI={false}
-                principalTypes={[PrincipalType.User]}
-                resolveDelay={1000} />
+          <div className="form-row" >
+            <div className="form-group col-md-6">
+              <label> <h6> Παραλήπτης </h6></label>
+              <div className="form-control" id="PeoplePickerBorder">
+                <PeoplePicker
+                  context={this.props.context}
+                  personSelectionLimit={1}
+                  groupName={""} // Leave this blank in case you want to filter from all users    
+                  showtooltip={true}
+                  isRequired={true}
+                  disabled={false}
+                  ensureUser={true}
+                  //selectedItems={this._getManager}
+                  selectedItems={this._getManager}
+                  showHiddenInUI={false}
+                  principalTypes={[PrincipalType.User]}
+                  resolveDelay={1000} />
+              </div>
+            </div>
+            <div className="form-group col-md-6">
+              <label> <h6> Ημερομηνία Αίτησης</h6></label>
+              <TextField className="form-control" readOnly value={this.state.requestDate} required={true} onChanged={this.handleRequestDate}
+                errorMessage={(this.state.requestDate.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Ημερομηνία Αίτησης" />
             </div>
           </div>
           <br></br>
 
           <div className="form-row" >
-            <div className="form-group col-md-4">
+            <div className="form-group col-md-6">
               <label> <h6 >Αρ. Πρωτ. Εισερχομένου </h6></label>
               <TextField className="form-control" value={this.state.referenceNumberIn} required={true} onChanged={this.handleReferenceNumberIn}
                 errorMessage={(this.state.referenceNumberIn.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Αρ. Πρωτ. Εισερχομένου " />
             </div>
 
-            <div className="form-group col-md-4">
-              <label> <h6> Ημερομηνία Αίτησης</h6></label>
-              <TextField className="form-control" readOnly value={this.state.requestDate} required={true} onChanged={this.handleRequestDate}
-                errorMessage={(this.state.requestDate.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Ημερομηνία Αίτησης" />
-            </div>
-
-            <div className="form-group col-md-4">
-              <label> <h6> Email Αιτούντα </h6></label>
-              <TextField className="form-control" readOnly value={this.state.requesterEmail} required={true} onChanged={this.handleRequesterEmail}
-                errorMessage={(this.state.requesterEmail.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Email Αιτούντα " />
-            </div>
-          </div>
-          <br></br>
-
-          <div className="form-row" >
-            <div className="form-group col-md-4">
+            <div className="form-group col-md-6">
               <label> <h6> Κωδικός Επιβεβαίωσης </h6></label>
               <TextField className="form-control" value={this.state.verificationCode} required={true} onChanged={this.handleVerificationCode}
                 errorMessage={(this.state.verificationCode.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Κωδικός Επιβεβαίωσης" />
             </div>
-            <div className="form-group col-md-4">
+
+
+            {/* <div className="form-group col-md-4">
+              <label> <h6> Email Αιτούντα </h6></label>
+              <TextField className="form-control" readOnly value={this.state.requesterEmail} required={true} onChanged={this.handleRequesterEmail}
+                errorMessage={(this.state.requesterEmail.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Email Αιτούντα " />
+            </div> */}
+          </div>
+          <br></br>
+
+          <div className="form-row" >
+            <div className="form-group col-md-6">
               <label> <h6> Αρ. Πρωτ. Εξερχομένου </h6></label>
               <TextField className="form-control" value={this.state.referenceNumberOut} required={true} onChanged={this.handleReferenceNumberOut}
                 errorMessage={(this.state.referenceNumberOut.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Αρ. Πρωτ. Εξερχομένου " />
             </div>
 
-            <div className="form-group col-md-4">
+            <div className="form-group col-md-6">
               <label> <h6> Ημερομηνία Εξερχομένου </h6></label>
 
               <input
@@ -278,8 +290,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
                 className="form-control"
                 name="date"
                 style={{ height: '2.9em' }}
-                formNoValidate
-                onChange={this.handleDate} />
+              //onChange={this.handleDate}
+              />
             </div>
             {/* <div className="form-group col-md-4">
               <label> <h6> Ημερομηνία Εξερχομένου </h6></label>
@@ -377,30 +389,28 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
   protected async uploadFiles(fileUpload) {
 
-    this.createFile(this.state.fileName, this.state.requestDate);
+    this.createFile();
 
-    var dat = new Date(this.state.requestDate);
+    // var dat = new Date(this.state.requestDate);
+    // var day = dat.getDate();
+    // var mon = dat.getMonth();
+    // var yar = dat.getFullYear();
+    var day = this.state.requestDate.charAt(0) + this.state.requestDate.charAt(1)
+    var mon = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
+    var yar = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
 
-    var day = dat.getDate();
-    var mon = dat.getMonth();
-    var yar = dat.getFullYear();
 
     let file = fileUpload.files[0];
     //let attachmentsArray = this.state.attachmentsToUpload;        
 
-
-
-    console.log("staring!")
-
-
     if (file.size <= 10485760) {
       // small upload
-      web.getFolderByServerRelativeUrl("/sites/IDIKA/Shared%20Documents/" + this.state.fileName + "-" + day + "-" + mon + "-" + yar)
+      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/Shared%20Documents/" + this.state.request + "-" + day + "-" + mon + "-" + yar)
         .files.add(file.name, file, true)
         .then(_ => console.log("done"));
 
     } else { // large upload
-      web.getFolderByServerRelativeUrl("/sites/IDIKA/Shared%20Documents/" + this.state.fileName + "-" + day + "-" + mon + "-" + yar)
+      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/Shared%20Documents/" + this.state.request + "-" + day + "-" + mon + "-" + yar)
         .files
         .addChunked(file.name, file, data => {
 
@@ -410,8 +420,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     }
 
     pnp.sp.web.lists.getByTitle("Files").items.add({
-      Title: file.name,
-      Path: "https://cloudlabgr.sharepoint.com/sites/IDIKA/_layouts/download.aspx?sourceurl=/sites/IDIKA/Shared Documents/" + this.state.fileName + "-" + day + "-" + mon + "-" + yar + "/" + file.name,
+      FileName: file.name,
+      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/Shared%20Documents/" + this.state.request + "-" + day + "-" + mon + "-" + yar + "/" + file.name,
       RequestId: parseInt(idd),
       ReferenceNumberIn: this.state.referenceNumberIn,
       ReferenceNumberOut: this.state.referenceNumberOut,
@@ -460,17 +470,20 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     };
   }
 
-  protected async createFile(filename: string, requestdate: string) {
+  protected async createFile() {
     //create folder
-    var dat = new Date(requestdate);
-    var day = dat.getDate();
-    var mon = dat.getMonth();
-    var yar = dat.getFullYear();
-    console.log('/sites/IDIKA/Shared%20Documents/' + filename + "-" + day + "-" + mon + "-" + yar);
+    var dat = new Date(this.state.requestDate);
+    console.log('reDate: ' + this.state.requestDate)
+
+    var day = this.state.requestDate.charAt(0) + this.state.requestDate.charAt(1)
+    var mon = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
+    var yar = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
+
+    console.log('/sites/ExternalSharing/Shared%20Documents/' + this.state.request + "-" + day + "-" + mon + "-" + yar);
     await web
       .folders
       //.add('/sites/IDIKA/Shared%20Documents/' + filename + "-" + day + "-" + mon + "-" + yar)
-      .add('/sites/IDIKA/Shared%20Documents/' + filename + "-" + day + "-" + mon + "-" + yar)
+      .add('/sites/ExternalSharing/Shared%20Documents/' + this.state.request + "-" + day + "-" + mon + "-" + yar)
       .then(console.log);
   }
 
@@ -528,9 +541,9 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     });
   }
 
-  private handleFileName(value: string): void {
+  private handleRequest(value: string): void {
     return this.setState({
-      fileName: value
+      request: value
     });
   }
 
@@ -604,7 +617,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     let allowCreate: boolean = true;
     this.setState({ onSubmission: true });
 
-    if (this.state.fileName.length === 0) {
+    if (this.state.request.length === 0) {
       allowCreate = false;
     }
     // if (this.state.termKey === undefined) {
@@ -623,7 +636,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     this._onClosePanel();
     this._showDialog("Submitting Request");
     pnp.sp.web.lists.getByTitle("Employee Registeration").items.add({
-      Title: this.state.fileName,
+      Title: this.state.request,
       Description: this.state.description,
       Department: this.state.dpselectedItem.key,
       Projects: {
@@ -649,7 +662,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       // ReferenceNumberOutDate: this.state.referenceNumberOutDate,
       // VerificationCode: this.state.verificationCode,
       // Decryption: this.state.decryption,
-      RequesterId: this.state.userManagerIDs[0],
+      ReceiverId: this.state.userManagerIDs[0],
+      ReferenceNumberIn: this.state.referenceNumberIn,
       Completed: checkboxValue
     }).then((iar: ItemUpdateResult) => {
       console.log(iar);
