@@ -11,12 +11,22 @@ import {
 import * as strings from 'AdminFormWebPartStrings';
 import AdminForm from './components/AdminForm';
 import { IAdminFormProps } from './components/IAdminFormProps';
+import { IWebPartContext } from '@microsoft/sp-webpart-base'
 
 export interface IAdminFormWebPartProps {
   description: string;
+  context: IWebPartContext
 }
 
 export default class AdminFormWebPart extends BaseClientSideWebPart<IAdminFormWebPartProps> {
+
+  public onInit(): Promise<void> {
+    return super.onInit().then(_ => {
+      pnp.setup({
+        spfxContext: this.context
+      });
+    })
+  }
 
   public render(): void {
     const element: React.ReactElement<IAdminFormProps> = React.createElement(

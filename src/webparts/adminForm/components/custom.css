@@ -28,12 +28,14 @@
 }
 
 button#buttonGenPass {
-
-  height: 2.85em;
+  margin-left: 1em;
+  height: 2.2em;
+  margin-top: 0.6em;
 }
 
 input#fileUploadInput {
   height: 2.9em;
+  border: 0;
 }
 
 .ms-TextField-fieldGroup {
@@ -46,4 +48,8 @@ input#fileUploadInput {
 
 input#date {
   height: 2.9em;
+}
+
+div#id__62 {
+  font-weight: 400;
 }

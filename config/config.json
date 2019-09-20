@@ -3,15 +3,18 @@
   "version": "2.0",
   "bundles": {
     "admin-form-web-part": {
-      "components": [
-        {
-          "entrypoint": "./lib/webparts/adminForm/AdminFormWebPart.js",
-          "manifest": "./src/webparts/adminForm/AdminFormWebPart.manifest.json"
-        }
-      ]
+      "components": [{
+        "entrypoint": "./lib/webparts/adminForm/AdminFormWebPart.js",
+        "manifest": "./src/webparts/adminForm/AdminFormWebPart.manifest.json"
+      }]
     }
   },
-  "externals": {},
+  "externals": {
+    "jquery": {
+      "path": "node_modules/jquery/dist/jquery.min.js",
+      "globalName": "jQuery"
+    }
+  },
   "localizedResources": {
     "AdminFormWebPartStrings": "lib/webparts/adminForm/loc/{locale}.js",
     "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
