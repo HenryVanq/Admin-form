@@ -16,9 +16,15 @@
 
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
-    "group": { "default": "Other" },
-    "title": { "default": "AdminForm" },
-    "description": { "default": "Admin Form" },
+    "group": {
+      "default": "Other"
+    },
+    "title": {
+      "default": "AdminForm"
+    },
+    "description": {
+      "default": "Admin Form"
+    },
     "officeFabricIconFontName": "Page",
     "properties": {
       "description": "AdminForm"

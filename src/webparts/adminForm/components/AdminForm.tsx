@@ -36,6 +36,8 @@ SPComponentLoader.loadCss(cssUrl)
 export default class AdminForm extends React.Component<IAdminFormProps, IReactSpFxPnP> {
   constructor(props) {
     super(props);
+
+
     this.handleRequesterEmail = this.handleRequesterEmail.bind(this);
     this.handleRequestDate = this.handleRequestDate.bind(this);
     this.handleRequest = this.handleRequest.bind(this);
@@ -361,7 +363,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     }
   }
 
-  protected async uploadFiles(fileUpload) {
+  protected uploadFiles(fileUpload) {
 
     this.createFile();
 
@@ -445,7 +447,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     };
   }
 
-  protected async createFile() {
+  protected createFile() {
     //create folder
     var dat = new Date(this.state.requestDate);
     console.log('reDate: ' + this.state.requestDate)
@@ -455,7 +457,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     var yar = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
 
     console.log('/sites/ExternalSharing/SharedFiles/' + this.state.request + "-" + day + "-" + mon + "-" + yar);
-    await web
+    web
       .folders
       //.add('/sites/IDIKA/Shared%20Documents/' + filename + "-" + day + "-" + mon + "-" + yar)
       .add('/sites/ExternalSharing/SharedFiles/' + this.state.request + "-" + day + "-" + mon + "-" + yar)
