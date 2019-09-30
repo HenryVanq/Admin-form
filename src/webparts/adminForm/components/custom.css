@@ -23,6 +23,10 @@
   height: 5%;
 }
 
+#btnFormCancel {
+  height: 5%;
+}
+
 .ms-Toggle.is-enabled.form-control.root-160 {
   height: 2.9em;
 }
@@ -30,6 +34,7 @@
 button#buttonGenPass {
   margin-left: 1em;
   height: 2.2em;
+  width: 8em;
   margin-top: 0.6em;
 }
 

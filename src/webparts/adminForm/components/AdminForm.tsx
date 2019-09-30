@@ -97,12 +97,16 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
   componentDidMount() {
 
-    pnp.sp.web.lists.getByTitle('SharedFiles').items.getById(1).effectiveBasePermissions.get().then(console.log)
-    console.log(pnp.sp.web.getCurrentUserEffectivePermissions());
+    $('#btnFormCancel').on('click', () => {
+      var confirmation = confirm("Aκύρωση αιτήματος?");
+      if (confirmation === true) {
+        window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing/SitePages/HomePage.aspx')
+      } else { }
+    })
 
     pnp.sp.web.lists.getByTitle("Requests").items.getById(parseInt(idd)).get().then((item: any) => {
       let dateobj = new Date(item.RequestDate);
-      console.log(item.ReceiverId)
+      // console.log(item.ReceiverId)
       this.setState({
         request: ((item.Request == null) ? "" : item.Request),
         Fullname: ((item.Fullname == null) ? "" : item.Fullname),
@@ -144,7 +148,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     });
 
     return (
-      <form onSubmit={(e) => { return false }}>
+      <form id="form" onSubmit={(e) => { return false }}>
 
 
         <div className={"card text-center bg-info mb-3"}>
@@ -154,13 +158,13 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
         <div className="card" style={{ border: 'none' }}>
           <div className="card-header text-white bg-dark mb-3" >
-            <h5> Στοιχεία Αίτησης </h5>
+            <h5> Στοιχεία Αιτήματος </h5>
           </div>
           <br></br>
           <div className="form-row" >
             <div className="form-group col-md-6">
-              <label><h6> Όνομα Αιτήματος </h6></label>
-              <TextField className="form-control" readOnly value={this.state.request} required={true} onChanged={this.handleRequest}
+              <label><h6> Ονομασία Αιτήματος </h6></label>
+              <TextField className="form-control" readOnly value={this.state.request} onChanged={this.handleRequest}
                 errorMessage={(this.state.request.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Όνομα Αιτήματος" />
             </div>
             <div className="form-group col-md-6 text-center">
@@ -181,14 +185,14 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           </div>
           <div className="form-row" >
             <div className="form-group col-md-6">
-              <label> <h6 >Όνομα</h6></label>
-              <TextField className="form-control" readOnly value={this.state.Fullname} required={true} onChanged={this.handleFullname}
+              <label> <h6 >Ονοματεπώνυμο</h6></label>
+              <TextField className="form-control" readOnly value={this.state.Fullname} onChanged={this.handleFullname}
                 errorMessage={(this.state.Fullname.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Όνομα "
               />
             </div>
             <div className="form-group col-md-6">
-              <label> <h6>Οργανισμός</h6></label>
-              <TextField className="form-control" readOnly value={this.state.Organization} required={true} onChanged={this.handleOrganization}
+              <label> <h6>Οργανισμός/Υπηρεσία</h6></label>
+              <TextField className="form-control" readOnly value={this.state.Organization} onChanged={this.handleOrganization}
                 errorMessage={(this.state.Organization.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Οργανισμός"
               />
             </div>
@@ -196,12 +200,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           <div className="form-row" >
             <div className="form-group col-md-6">
               <label> <h6 >Τηλέφωνο</h6></label>
-              <TextField className="form-control" value={this.state.PhoneNumber} required={true} onChanged={this.handlePhoneNumber}
+              <TextField className="form-control" value={this.state.PhoneNumber} onChanged={this.handlePhoneNumber}
                 errorMessage={(this.state.PhoneNumber.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Τηλέφωνο" />
             </div>
             <div className="form-group col-md-6">
               <label> <h6> Email</h6></label>
-              <TextField className="form-control" readOnly value={this.state.Email} required={true} onChanged={this.handleEmail}
+              <TextField className="form-control" readOnly value={this.state.Email} onChanged={this.handleEmail}
                 errorMessage={(this.state.Email.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Email" />
             </div>
           </div>
@@ -209,17 +213,17 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           <div className="form-group"  >
             <label><h6> Αιτιολογία </h6></label>
           </div>
-          <TextField className="form-control" readOnly multiline={true} value={this.state.Reason} required={true} onChanged={this.handleReason}
+          <TextField className="form-control" readOnly multiline={true} value={this.state.Reason} onChanged={this.handleReason}
             errorMessage={(this.state.Reason.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Αιτιολογία" />
           <br></br>
           <br></br>
           <div className="card-header text-white bg-dark mb-3" >
-            <h5> Φορμα Διαχειριστή</h5>
+            <h5> Φόρμα Διαχειριστή</h5>
           </div>
           <br></br>
           <div className="form-row" >
             <div className="form-group col-md-6">
-              <label> <h6> Παραλήπτης </h6></label>
+              <label> <h6> Παραλήπτης * </h6></label>
               <div className="form-control" id="PeoplePickerBorder">
                 <PeoplePicker
                   context={this.props.context}
@@ -233,12 +237,13 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
                   selectedItems={this._getManager}
                   showHiddenInUI={false}
                   principalTypes={[PrincipalType.User]}
-                  resolveDelay={1000} />
+                  resolveDelay={1000}
+                />
               </div>
             </div>
             <div className="form-group col-md-6">
               <label> <h6> Ημερομηνία Αίτησης</h6></label>
-              <TextField className="form-control" readOnly value={this.state.requestDate} required={true} onChanged={this.handleRequestDate}
+              <TextField className="form-control" readOnly value={this.state.requestDate} onChanged={this.handleRequestDate}
                 errorMessage={(this.state.requestDate.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Ημερομηνία Αίτησης" />
             </div>
           </div>
@@ -246,13 +251,13 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
           <div className="form-row" >
             <div className="form-group col-md-6">
-              <label> <h6 >Αρ. Πρωτ. Εισερχομένου </h6></label>
-              <TextField className="form-control" value={this.state.referenceNumberIn} required={true} onChanged={this.handleReferenceNumberIn}
+              <label> <h6 >Αρ. Πρωτ. Εισερχομένου * </h6></label>
+              <TextField className="form-control" value={this.state.referenceNumberIn} onChanged={this.handleReferenceNumberIn}
                 errorMessage={(this.state.referenceNumberIn.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Αρ. Πρωτ. Εισερχομένου " />
             </div>
             <div className="form-group col-md-6">
-              <label> <h6> Κωδικός Επιβεβαίωσης </h6></label>
-              <TextField className="form-control" value={this.state.verificationCode} required={true} onChanged={this.handleVerificationCode}
+              <label> <h6> Κωδικός Επιβεβαίωσης * </h6></label>
+              <TextField className="form-control" value={this.state.verificationCode} onChanged={this.handleVerificationCode}
                 errorMessage={(this.state.verificationCode.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Κωδικός Επιβεβαίωσης" />
             </div>
             {/* <div className="form-group col-md-4">
@@ -263,12 +268,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           </div>
           <div className="form-row" >
             <div className="form-group col-md-6">
-              <label> <h6> Αρ. Πρωτ. Εξερχομένου </h6></label>
-              <TextField className="form-control" value={this.state.referenceNumberOut} required={true} onChanged={this.handleReferenceNumberOut}
+              <label> <h6> Αρ. Πρωτ. Εξερχομένου * </h6></label>
+              <TextField className="form-control" value={this.state.referenceNumberOut} onChanged={this.handleReferenceNumberOut}
                 errorMessage={(this.state.referenceNumberOut.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Αρ. Πρωτ. Εξερχομένου " />
             </div>
             <div className="form-group col-md-6">
-              <label> <h6> Ημερομηνία Εξερχομένου </h6></label>
+              <label> <h6> Ημερομηνία Εξερχομένου * </h6></label>
               <input
                 id="date"
                 type="date"
@@ -289,20 +294,20 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           <div className="form-row" >
 
             <div className="form-group col-md-6 ">
-              <label> <h6> Κωδικός Αποκρυπτογράφησης </h6></label>
+              <label> <h6> Κωδικός Αποκρυπτογράφησης * </h6></label>
               <div className="input-group ">
-                <PrimaryButton className="btn btn-dark text-white btn-sm" id="buttonGenPass" text="Δημιουργία" onClick={() => {
+                <PrimaryButton className="btn btn-dark text-white btn-sm" id="buttonGenPass" text="Generate" onClick={() => {
                   this.generatePassword();
                 }} />
 
-                <TextField id="inputGenPass" className="form-control border-0" value={this.state.decryption} required={true} onChanged={this.handleDecryption}
+                <TextField id="inputGenPass" className="form-control border-0" value={this.state.decryption} onChanged={this.handleDecryption}
                   errorMessage={(this.state.decryption.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Κωδικός Αποκρυπτογράφησης" />
 
               </div>
             </div>
 
             <div className="form-group col-md-6">
-              <label> <h6> Ανέβασμα Αρχείου </h6></label>
+              <label> <h6> Ανάρτηση Αρχείου * </h6></label>
               <input required={true} className="form-control" type='file' id='fileUploadInput' name='myfile' />
               <button id="fileUpload" name="uFile">upload</button>
             </div>
@@ -337,19 +342,9 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
             alert("Παρακαλώ συμπληρώστε όλα τα πεδία")
           }
         }} style={{ marginRight: '8px' }}><h5> Υποβολή Αιτήματος </h5> </PrimaryButton>
-        <DefaultButton id="btnForm" className="btn btn-secondary btn-lg btn-block" onClick={() => { this.setState({}); }}  > <h5> Ακύρωση </h5> </DefaultButton>
+        <DefaultButton id="btnFormCancel" className="btn btn-secondary btn-lg btn-block" onClick={() => { this.setState({}); }}  > <h5> Εξοδος </h5> </DefaultButton>
       </form>
     );
-  }
-
-
-
-  private todayDate() {
-
-    let today = new Date().toISOString().substr(0, 10);
-    $('#today').val('dd-mm-yyy')
-
-
   }
 
   private uploadingFileEventHandlers() {
@@ -359,11 +354,11 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
     if (fileUpload) {
       this.uploadFiles(test1);
-      console.log("file uploaded: ")
     }
   }
 
   protected uploadFiles(fileUpload) {
+
 
     this.createFile();
 
@@ -406,10 +401,16 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       Decryption: this.state.decryption,
       // refDateOut: this.state.date.toString()
     }).then((iar: ItemAddResult) => {
+      $("#form").hide()
+      $("#btnForm").hide()
+      $("#btnFormCancel").hide()
       console.log(iar);
     }).then(() => {
-      alert("H καταχώρηση ολοκληρώθηκε επιτυχώς!")
-      //window.location.href = 'https://idikagr.sharepoint.com/sites/ExternalSharing/SitePages/HomePage.aspx'
+
+      alert("Το αίτημα ολοκληρώθηκε επιτυχώς")
+
+      window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing/SitePages/HomePage.aspx')
+
     })
   }
 
@@ -450,13 +451,11 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
   protected createFile() {
     //create folder
     var dat = new Date(this.state.requestDate);
-    console.log('reDate: ' + this.state.requestDate)
 
     var day = this.state.requestDate.charAt(0) + this.state.requestDate.charAt(1)
     var mon = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
     var yar = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
 
-    console.log('/sites/ExternalSharing/SharedFiles/' + this.state.request + "-" + day + "-" + mon + "-" + yar);
     web
       .folders
       //.add('/sites/IDIKA/Shared%20Documents/' + filename + "-" + day + "-" + mon + "-" + yar)
@@ -645,7 +644,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     }).then((iar: ItemUpdateResult) => {
       console.log(iar);
       this.setState({ status: "Your request has been submitted sucessfully." });
-      console.log("new record added to files lists")
+
     });
   }
 
