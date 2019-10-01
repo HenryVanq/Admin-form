@@ -100,7 +100,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     $('#btnFormCancel').on('click', () => {
       var confirmation = confirm("Aκύρωση αιτήματος?");
       if (confirmation === true) {
-        window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing/SitePages/HomePage.aspx')
+        window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing')
       } else { }
     })
 
@@ -407,9 +407,9 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       console.log(iar);
     }).then(() => {
 
-      alert("Το αίτημα ολοκληρώθηκε επιτυχώς")
+      alert("Το αίτημα καταχωρήθηκε επιτυχώς")
 
-      window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing/SitePages/HomePage.aspx')
+      window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing')
 
     })
   }
