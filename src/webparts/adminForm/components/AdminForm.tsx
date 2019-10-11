@@ -90,8 +90,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       required: "This is required",
       onSubmission: false,
       termnCond: false,
-
-
     }
   }
 
@@ -118,26 +116,15 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
         referenceNumberIn: ((item.ReferenceNumberIn == null) ? "" : item.ReferenceNumberIn),
 
 
-
         requesterEmail: ((item.RequesterEmail == null) ? "" : item.RequesterEmail),
         referenceNumberOut: ((item.ReferenceNumberOut == null) ? "" : item.ReferenceNumberOut),
-        //referenceNumberOutDate: ((item.ReferenceNumberOutDate == null) ? "" : item.ReferenceNumberOutDate),
         verificationCode: ((item.VerificationCode == null) ? "" : item.VerificationCode),
         decryption: ((item.Decryption == null) ? "" : item.Decryption),
-
-
-
-
-
       });
     });
 
-    // let todayDateobj = new Date().toISOString().substr(0, 10);
-    // $('#date').val(todayDateobj)
-
-
     $('#fileUpload').hide()
-    //$('#fileUploadInput').hide()
+
   }
 
   public render(): React.ReactElement<IAdminFormProps> {
@@ -156,8 +143,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
         </div>
 
 
-        <div className="card" style={{ border: 'none' }}>
-          <div className="card-header text-white bg-dark mb-3" >
+        <div className="card card bg-light mb-3">
+          <div className="card-header" >
             <h5> Στοιχεία Αιτήματος </h5>
           </div>
           <br></br>
@@ -217,7 +204,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
             errorMessage={(this.state.Reason.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Αιτιολογία" />
           <br></br>
           <br></br>
-          <div className="card-header text-white bg-dark mb-3" >
+        </div>
+
+
+
+        <div className="card bg-light mb-3">
+          <div className="card-header" >
             <h5> Φόρμα Διαχειριστή</h5>
           </div>
           <br></br>
@@ -252,19 +244,14 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           <div className="form-row" >
             <div className="form-group col-md-6">
               <label> <h6 >Αρ. Πρωτ. Εισερχομένου * </h6></label>
-              <TextField className="form-control" value={this.state.referenceNumberIn} onChanged={this.handleReferenceNumberIn}
+              <TextField id="inputref" className="form-control" value={this.state.referenceNumberIn} onChanged={this.handleReferenceNumberIn}
                 errorMessage={(this.state.referenceNumberIn.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Αρ. Πρωτ. Εισερχομένου " />
             </div>
             <div className="form-group col-md-6">
-              <label> <h6> Κωδικός Επιβεβαίωσης * </h6></label>
+              <label> <h6> Κωδικός Επιβεβαίωσης Aκεραιότητας * </h6></label>
               <TextField className="form-control" value={this.state.verificationCode} onChanged={this.handleVerificationCode}
                 errorMessage={(this.state.verificationCode.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Κωδικός Επιβεβαίωσης" />
             </div>
-            {/* <div className="form-group col-md-4">
-              <label> <h6> Email Αιτούντα </h6></label>
-              <TextField className="form-control" readOnly value={this.state.requesterEmail} required={true} onChanged={this.handleRequesterEmail}
-                errorMessage={(this.state.requesterEmail.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Email Αιτούντα " />
-            </div> */}
           </div>
           <div className="form-row" >
             <div className="form-group col-md-6">
@@ -283,11 +270,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
                 onChange={this.handleDate}
               />
             </div>
-            {/* <div className="form-group col-md-4">
-              <label> <h6> Ημερομηνία Εξερχομένου </h6></label>
-              <TextField className="form-control" value={this.state.referenceNumberOutDate} required={true} onChanged={this.handleReferenceNumberOutDate}
-                errorMessage={(this.state.referenceNumberOutDate.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Ημερομηνία Εξερχομένου" />
-            </div> */}
           </div>
 
           <br></br>
@@ -313,12 +295,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
             </div>
 
 
-
           </div>
+
         </div>
+
         <br></br>
-        {/* <PrimaryButton text="Create" onClick={() => { this.validateForm(); }} /> */}
-        <PrimaryButton id="btnForm" className="btn btn-primary btn-lg btn-block" onClick={() => {
+        <PrimaryButton id="btnForm" className="btn btn-dark btn-lg btn-block" onClick={() => {
           if ($('#fileUploadInput').val() != ""
 
             && this.state.userManagerIDs.length >= 1
@@ -333,7 +315,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
               alert("Παρακαλω επιλέξτε την ημερομηνία")
             } else {
 
-              this.updateItem();
               this.uploadingFileEventHandlers();
             }
 
@@ -342,7 +323,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
             alert("Παρακαλώ συμπληρώστε όλα τα πεδία")
           }
         }} style={{ marginRight: '8px' }}><h5> Υποβολή Αιτήματος </h5> </PrimaryButton>
-        <DefaultButton id="btnFormCancel" className="btn btn-secondary btn-lg btn-block" onClick={() => { this.setState({}); }}  > <h5> Εξοδος </h5> </DefaultButton>
+        <DefaultButton id="btnFormCancel" className="btn btn-light btn-lg btn-block border" onClick={() => { this.setState({}); }}  > <h5> Εξοδος </h5> </DefaultButton>
       </form>
     );
   }
@@ -361,27 +342,23 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
 
     this.createFile();
-
-    // var dat = new Date(this.state.requestDate);
-    // var day = dat.getDate();
-    // var mon = dat.getMonth();
-    // var yar = dat.getFullYear();
     var day = this.state.requestDate.charAt(0) + this.state.requestDate.charAt(1)
-    var mon = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
-    var yar = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
+    var month = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
+    var year = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
+
+    const cleanReferenceNumberIn = this.cleanFolderName(this.state.referenceNumberIn)
 
 
     let file = fileUpload.files[0];
-    //let attachmentsArray = this.state.attachmentsToUpload;        
 
     if (file.size <= 10485760) {
       // small upload
-      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + this.state.request + "-" + day + "-" + mon + "-" + yar)
+      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn)
         .files.add(file.name, file, true)
         .then(_ => console.log("done"));
 
     } else { // large upload
-      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + this.state.request + "-" + day + "-" + mon + "-" + yar)
+      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn)
         .files
         .addChunked(file.name, file, data => {
 
@@ -390,9 +367,11 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
     }
 
+    this.updateItem(year, month, day, cleanReferenceNumberIn, file.name)
+
     pnp.sp.web.lists.getByTitle("Files").items.add({
       FileName: file.name,
-      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + this.state.request + "-" + day + "-" + mon + "-" + yar + "/" + file.name,
+      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + "/" + file.name,
       RequestId: parseInt(idd),
       ReferenceNumberIn: this.state.referenceNumberIn,
       ReferenceNumberOut: this.state.referenceNumberOut,
@@ -406,11 +385,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       $("#btnFormCancel").hide()
       console.log(iar);
     }).then(() => {
-
       alert("Το αίτημα καταχωρήθηκε επιτυχώς")
-
       window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing')
-
     })
   }
 
@@ -442,10 +418,11 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     );
   }
 
-  private _log(str: string): () => void {
-    return (): void => {
-      console.log(str);
-    };
+  protected cleanFolderName(referenceNumberIn: String) {
+
+    const validFolderName = referenceNumberIn.replace(/\s+/gi, '-'); // Replace white space with dash
+
+    return validFolderName.replace(/[^a-zA-Z0-9\-]/gi, ''); // Strip any special characterer
   }
 
   protected createFile() {
@@ -453,13 +430,14 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     var dat = new Date(this.state.requestDate);
 
     var day = this.state.requestDate.charAt(0) + this.state.requestDate.charAt(1)
-    var mon = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
-    var yar = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
+    var month = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
+    var year = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
+
+    const cleanReferenceNumberIn = this.cleanFolderName(this.state.referenceNumberIn)
 
     web
       .folders
-      //.add('/sites/IDIKA/Shared%20Documents/' + filename + "-" + day + "-" + mon + "-" + yar)
-      .add('/sites/ExternalSharing/SharedFiles/' + this.state.request + "-" + day + "-" + mon + "-" + yar)
+      .add('/sites/ExternalSharing/SharedFiles/' + year + month + day + '-' + cleanReferenceNumberIn)
       .then(console.log);
   }
 
@@ -467,24 +445,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     this.setState({ showPanel: false });
   }
 
-  private _onShowPanel = () => {
-    this.setState({ showPanel: true });
-  }
-
   private _changeSharing(checked: any): void {
     this.setState({ defaultChecked: checked });
-  }
-
-  private _changeState = (item: IDropdownOption): void => {
-    console.log('here is the things updating...' + item.key + ' ' + item.text + ' ' + item.selected);
-    this.setState({ dpselectedItem: item });
-    if (item.text == "Employee") {
-      this.setState({ defaultChecked: false });
-      this.setState({ disableToggle: true });
-    }
-    else {
-      this.setState({ disableToggle: false });
-    }
   }
 
   private handleFullname(value: string): void {
@@ -543,11 +505,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       referenceNumberOut: value
     });
   }
-  // private handleReferenceNumberOutDate(value: Date): void {
-  //   return this.setState({
-  //     referenceNumberOutDate: value
-  //   });
-  // }
 
   private handleDate(e) {
     return this.setState({
@@ -586,28 +543,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     this.setState({ status: status });
   }
 
-  /**
-   * A sample to show on how form can be validated
-   */
-  private validateForm(): void {
-    let allowCreate: boolean = true;
-    this.setState({ onSubmission: true });
-
-    if (this.state.request.length === 0) {
-      allowCreate = false;
-    }
-    // if (this.state.termKey === undefined) {
-    //   allowCreate = false;
-    // }
-
-    if (allowCreate) {
-      this._onShowPanel();
-    }
-    else {
-      //do nothing
-    }
-  }
-
   private createItem(): void {
     this._onClosePanel();
     this._showDialog("Submitting Request");
@@ -628,16 +563,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     });
   }
 
-  private updateItem(): void {
+  private updateItem(_year, _month, _day, _cleanReferenceNumberIn, _file): void {
     var checkboxValue = this.state.defaultChecked ? "Yes" : "No";
     console.log(this.state.defaultChecked);
+
     pnp.sp.web.lists.getByTitle("Requests").items.getById(parseInt(idd)).update({
-      //'Title': `Updated Item ${new Date()}`
-      // ReferenceNumberIn: this.state.referenceNumberIn,
-      // ReferenceNumberOut: this.state.referenceNumberOut,
-      // ReferenceNumberOutDate: this.state.referenceNumberOutDate,
-      // VerificationCode: this.state.verificationCode,
-      // Decryption: this.state.decryption,
+      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + _year + _month + _day + '-' + _cleanReferenceNumberIn + "/" + _file,
       ReceiverId: this.state.userManagerIDs[0],
       ReferenceNumberIn: this.state.referenceNumberIn,
       Completed: checkboxValue
@@ -646,47 +577,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       this.setState({ status: "Your request has been submitted sucessfully." });
 
     });
-  }
-
-  // private updateItem(): void {  
-  //   this.updateStatus('Loading latest items...');  
-  //   let latestItemId: number = undefined;  
-  //   let etag: string = undefined;  
-
-  //   this.getLatestItemId()  
-  //     .then((itemId: number): Promise<Item> => {  
-  //       if (itemId === -1) {  
-  //         throw new Error('No items found in the list');  
-  //       }  
-
-  //       latestItemId = itemId;  
-  //       this.updateStatus(`Loading information about item ID: ${itemId}...`);  
-  //       return sp.web.lists.getByTitle(this.properties.listName)  
-  //         .items.getById(itemId).get(undefined, {  
-  //           headers: {  
-  //             'Accept': 'application/json;odata=minimalmetadata'  
-  //           }  
-  //         });  
-  //     })  
-  //     .then((item: Item): Promise<IListItem> => {  
-  //       etag = item["odata.etag"];  
-  //       return Promise.resolve((item as any) as IListItem);  
-  //     })  
-  //     .then((item: IListItem): Promise<ItemUpdateResult> => {  
-  //       return sp.web.lists.getByTitle(this.properties.listName)  
-  //         .items.getById(item.Id).update({  
-  //           'Title': `Updated Item ${new Date()}`  
-  //         }, etag);  
-  //     })  
-  //     .then((result: ItemUpdateResult): void => {  
-  //       this.updateStatus(`Item with ID: ${latestItemId} successfully updated`);  
-  //     }, (error: any): void => {  
-  //       this.updateStatus('Loading latest item failed with error: ' + error);  
-  //     });  
-  // } 
-
-  private gotoHomePage(): void {
-    window.location.replace(this.props.siteUrl);
   }
 }
 
