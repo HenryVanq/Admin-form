@@ -347,18 +347,19 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     var year = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
 
     const cleanReferenceNumberIn = this.cleanFolderName(this.state.referenceNumberIn)
+    const cleanRequest = this.cleanFolderName(this.state.request)
 
 
     let file = fileUpload.files[0];
 
     if (file.size <= 10485760) {
       // small upload
-      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn)
+      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
         .files.add(file.name, file, true)
         .then(_ => console.log("done"));
 
     } else { // large upload
-      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn)
+      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
         .files
         .addChunked(file.name, file, data => {
 
@@ -367,11 +368,11 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
     }
 
-    this.updateItem(year, month, day, cleanReferenceNumberIn, file.name)
+    this.updateItem(year, month, day, cleanReferenceNumberIn, cleanRequest, file.name)
 
     pnp.sp.web.lists.getByTitle("Files").items.add({
       FileName: file.name,
-      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + "/" + file.name,
+      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest + "/" + file.name,
       RequestId: parseInt(idd),
       ReferenceNumberIn: this.state.referenceNumberIn,
       ReferenceNumberOut: this.state.referenceNumberOut,
@@ -422,7 +423,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
     const validFolderName = referenceNumberIn.replace(/\s+/gi, '-'); // Replace white space with dash
 
-    return validFolderName.replace(/[^a-zA-Z0-9\-]/gi, ''); // Strip any special characterer
+    return validFolderName.replace(/[^a-zA-Z0-9\^α-ωΑ-Ω\-]/gi, ''); // Strip any special characterer
   }
 
   protected createFile() {
@@ -434,10 +435,11 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     var year = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
 
     const cleanReferenceNumberIn = this.cleanFolderName(this.state.referenceNumberIn)
+    const cleanRequest = this.cleanFolderName(this.state.request)
 
     web
       .folders
-      .add('/sites/ExternalSharing/SharedFiles/' + year + month + day + '-' + cleanReferenceNumberIn)
+      .add('/sites/ExternalSharing/SharedFiles/' + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
       .then(console.log);
   }
 
@@ -563,12 +565,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     });
   }
 
-  private updateItem(_year, _month, _day, _cleanReferenceNumberIn, _file): void {
+  private updateItem(_year, _month, _day, _cleanReferenceNumberIn, _cleanReaquest, _file): void {
     var checkboxValue = this.state.defaultChecked ? "Yes" : "No";
     console.log(this.state.defaultChecked);
 
     pnp.sp.web.lists.getByTitle("Requests").items.getById(parseInt(idd)).update({
-      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + _year + _month + _day + '-' + _cleanReferenceNumberIn + "/" + _file,
+      Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + _year + _month + _day + '-' + _cleanReferenceNumberIn + '-' + _cleanReaquest + "/" + _file,
       ReceiverId: this.state.userManagerIDs[0],
       ReferenceNumberIn: this.state.referenceNumberIn,
       Completed: checkboxValue
