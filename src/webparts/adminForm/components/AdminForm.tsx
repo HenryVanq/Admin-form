@@ -423,7 +423,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
     const validFolderName = referenceNumberIn.replace(/\s+/gi, '-'); // Replace white space with dash
 
-    return validFolderName.replace(/[^a-zA-Z0-9\^α-ωΑ-Ω\-]/gi, ''); // Strip any special characterer
+    return validFolderName.replace(/[^a-zA-Z0-9\^α-ωΑ-Ω-άέ-ήί-ό\-]/gi, ''); // Strip any special characterer
   }
 
   protected createFile() {
