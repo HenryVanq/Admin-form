@@ -1,32 +1,32 @@
-
 import * as React from 'react';
-import styles from './AdminForm.module.scss';
+// import styles from './AdminForm.module.scss';
 import { IAdminFormProps } from './IAdminFormProps';
 
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { TaxonomyPicker, IPickerTerms } from "@pnp/spfx-controls-react/lib/TaxonomyPicker";
-import { DateTimePicker, DateConvention, TimeConvention } from '@pnp/spfx-controls-react/lib/dateTimePicker';
-import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+// import { TaxonomyPicker, IPickerTerms } from "@pnp/spfx-controls-react/lib/TaxonomyPicker";
+// import { DateTimePicker, DateConvention, TimeConvention } from '@pnp/spfx-controls-react/lib/dateTimePicker';
+// import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { IReactSpFxPnP } from "../Model/IReactSpFxPnP";
-import { default as pnp, ItemUpdateResult, Web, Item, sp, ItemAddResult } from "sp-pnp-js";
-import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
+import { default as pnp, ItemUpdateResult, Web, Item, sp, ItemAddResult, TypedHash } from "sp-pnp-js";
+// import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react/lib/components/Button';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
-import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
-import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
+// import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+// import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
+// import { Panel, PanelType } from 'office-ui-fabric-react/lib/Panel';
 import { UrlQueryParameterCollection } from '@microsoft/sp-core-library';
-import { escape } from '@microsoft/sp-lodash-subset';
+// import { escape } from '@microsoft/sp-lodash-subset';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as $ from 'jquery';
 import './custom.css';
+// import { graph } from "@pnp/graph";
+// import { dateAdd } from "@pnp/common";
 
 
-
+import { SharingResult, SharingRole, SharingLinkKind, ShareLinkResponse, EmailProperties } from "@pnp/sp";
 
 var queryParms = new UrlQueryParameterCollection(window.location.href);
 var idd = queryParms.getValue("idd");
-var iddd = queryParms.getValue("iddd");
 let siteUrl = "https://idikagr.sharepoint.com/sites/ExternalSharing";
 let web = new Web(siteUrl);
 let cssUrl = 'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css';
@@ -36,7 +36,6 @@ SPComponentLoader.loadCss(cssUrl)
 export default class AdminForm extends React.Component<IAdminFormProps, IReactSpFxPnP> {
   constructor(props) {
     super(props);
-
 
     this.handleRequesterEmail = this.handleRequesterEmail.bind(this);
     this.handleRequestDate = this.handleRequestDate.bind(this);
@@ -75,6 +74,9 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       verificationCode: "",
       decryption: "",
       description: "",
+      receiver: '',
+
+
       selectedItems: [],
       hideDialog: true,
       showPanel: false,
@@ -90,21 +92,76 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       required: "This is required",
       onSubmission: false,
       termnCond: false,
+
+      departmentPhone: ''
     }
   }
 
-  componentDidMount() {
+  formValidation() {
+    if ($('#fileUploadInput').val() != ""
 
+      || this.state.receiver === ""
+      || this.state.referenceNumberOut === ""
+      || this.state.referenceNumberIn
+      || this.state.verificationCode === ""
+      || $('#date').val() === ""
+      || this.state.decryption === ""
+    ) {
+
+      return alert('Παρακαλώ συμπληρωστε όλα τα πεδία')
+    }
+
+    this.uploadingFileEventHandlers();
+    $("#btnForm").hide()
+  }
+
+  sharingFolder() {
+
+    const cleanReferenceNumberIn = this.cleanFolderName(this.state.referenceNumberIn)
+    const cleanRequest = this.cleanFolderName(this.state.request)
+
+    var day = this.state.requestDate.charAt(0) + this.state.requestDate.charAt(1)
+    var month = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
+    var year = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
+
+    const date = this.state.requestDate
+    console.log(date)
+
+    sp
+      .web
+      .getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
+      .shareWith(this.state.Email, SharingRole.View, false, false,
+        {
+          subject: `Σύστημα Διαμοιρασμού Αρχείων ΗΔΙΚΑ ΑΕ : Αίτημα διάθεσης στοιχείων ${year + month + day + '-' + cleanReferenceNumberIn}`,
+          body: `Αγαπητέ Παραλήπτη,
+Σας ενημερώνουμε ότι μπορείτε να παραλάβετε τα στοιχεία που ζητήσατε από την ΗΔΙΚΑ ΑΕ κατεβάζοντας το σχετικό αρχείο από το κουμπί open.
+Πρόκειται για συμπιεσμένο και κρυπτογραφημένο αρχείο. Παρακαλώ επικοινωνήστε στο τηλέφωνο 2132168ΧΧΧ για να λάβετε το απαραίτητο κλειδί αποκρυπτογράφησης.
+Οδηγίες για την ανάπτυξη του περιεχομένου του αρχείου θα βρείτε στο www.idika.gr
+Παραμένουμε στη διάθεσή σας για περαιτέρω διευκρινήσεις.
+Με εκτίμηση,
+ΗΔΙΚΑ ΑΕ
+`
+        })
+      .then((result: SharingResult) => {
+        console.log(result);
+      }).catch(e => {
+        console.log(e);
+      });
+  }
+
+  cancelApplication() {
     $('#btnFormCancel').on('click', () => {
       var confirmation = confirm("Aκύρωση αιτήματος?");
       if (confirmation === true) {
         window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing')
       } else { }
     })
+  }
 
+  gettindDataFromRequesterApplication() {
     pnp.sp.web.lists.getByTitle("Requests").items.getById(parseInt(idd)).get().then((item: any) => {
       let dateobj = new Date(item.RequestDate);
-      // console.log(item.ReceiverId)
+
       this.setState({
         request: ((item.Request == null) ? "" : item.Request),
         Fullname: ((item.Fullname == null) ? "" : item.Fullname),
@@ -114,22 +171,24 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
         Reason: ((item.Reason == null) ? "" : item.Reason),
         requestDate: ((item.RequestDate == null) ? "" : dateobj.toLocaleDateString('en-GB')),
         referenceNumberIn: ((item.ReferenceNumberIn == null) ? "" : item.ReferenceNumberIn),
-
-
+        receiver: ((item.Fullname == null) ? "" : item.Fullname),
         requesterEmail: ((item.RequesterEmail == null) ? "" : item.RequesterEmail),
         referenceNumberOut: ((item.ReferenceNumberOut == null) ? "" : item.ReferenceNumberOut),
         verificationCode: ((item.VerificationCode == null) ? "" : item.VerificationCode),
         decryption: ((item.Decryption == null) ? "" : item.Decryption),
       });
     });
+  }
 
+  componentDidMount() {
     $('#fileUpload').hide()
+    this.cancelApplication()
+    this.gettindDataFromRequesterApplication()
 
   }
 
   public render(): React.ReactElement<IAdminFormProps> {
-    const { dpselectedItem, dpselectedItems } = this.state;
-    const { request, requestDate, requesterEmail, Fullname, Organization, PhoneNumber, Email, Reason } = this.state;
+
     pnp.setup({
       spfxContext: this.props.context
     });
@@ -137,21 +196,24 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     return (
       <form id="form" onSubmit={(e) => { return false }}>
 
-
         <div className={"card text-center bg-info mb-3"}>
           <div className={"card-header"}> <h3 className={"text-white"} id={"title"}> Φόρμα Εισαγωγής Αρχείου</h3> </div>
         </div>
 
-
         <div className="card card bg-light mb-3">
+
           <div className="card-header" >
             <h5> Στοιχεία Αιτήματος </h5>
           </div>
           <br></br>
+
           <div className="form-row" >
             <div className="form-group col-md-6">
               <label><h6> Ονομασία Αιτήματος </h6></label>
-              <TextField className="form-control" readOnly value={this.state.request} onChanged={this.handleRequest}
+              <TextField
+                className="form-control"
+                readOnly value={this.state.request}
+                onChanged={this.handleRequest}
                 errorMessage={(this.state.request.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Όνομα Αιτήματος" />
             </div>
             <div className="form-group col-md-6 text-center">
@@ -166,55 +228,77 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
                 offText="Όχι"
                 onChanged={(checked) => this._changeSharing(checked)}
                 onFocus={() => console.log('onFocus called')}
-                onBlur={() => console.log('onBlur called')}
-              />
+                onBlur={() => console.log('onBlur called')} />
             </div>
           </div>
+
           <div className="form-row" >
             <div className="form-group col-md-6">
               <label> <h6 >Ονοματεπώνυμο</h6></label>
-              <TextField className="form-control" readOnly value={this.state.Fullname} onChanged={this.handleFullname}
-                errorMessage={(this.state.Fullname.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Όνομα "
-              />
+              <TextField
+                className="form-control"
+                readOnly value={this.state.Fullname}
+                onChanged={this.handleFullname}
+                errorMessage={(this.state.Fullname.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Όνομα " />
             </div>
             <div className="form-group col-md-6">
               <label> <h6>Οργανισμός/Υπηρεσία</h6></label>
-              <TextField className="form-control" readOnly value={this.state.Organization} onChanged={this.handleOrganization}
-                errorMessage={(this.state.Organization.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Οργανισμός"
-              />
+              <TextField
+                className="form-control"
+                readOnly value={this.state.Organization}
+                onChanged={this.handleOrganization}
+                errorMessage={(this.state.Organization.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Οργανισμός" />
             </div>
           </div>
+
           <div className="form-row" >
             <div className="form-group col-md-6">
               <label> <h6 >Τηλέφωνο</h6></label>
-              <TextField className="form-control" value={this.state.PhoneNumber} onChanged={this.handlePhoneNumber}
+              <TextField className="form-control"
+                value={this.state.PhoneNumber}
+                onChanged={this.handlePhoneNumber}
                 errorMessage={(this.state.PhoneNumber.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Τηλέφωνο" />
             </div>
             <div className="form-group col-md-6">
               <label> <h6> Email</h6></label>
-              <TextField className="form-control" readOnly value={this.state.Email} onChanged={this.handleEmail}
+              <TextField className="form-control"
+                readOnly value={this.state.Email}
+                onChanged={this.handleEmail}
                 errorMessage={(this.state.Email.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Email" />
             </div>
           </div>
           <br></br>
+
           <div className="form-group"  >
             <label><h6> Αιτιολογία </h6></label>
           </div>
-          <TextField className="form-control" readOnly multiline={true} value={this.state.Reason} onChanged={this.handleReason}
+          <TextField
+            className="form-control"
+            readOnly multiline={true}
+            value={this.state.Reason}
+            onChanged={this.handleReason}
             errorMessage={(this.state.Reason.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder=" Αιτιολογία" />
           <br></br>
           <br></br>
         </div>
-
-
 
         <div className="card bg-light mb-3">
           <div className="card-header" >
             <h5> Φόρμα Διαχειριστή</h5>
           </div>
           <br></br>
+
           <div className="form-row" >
             <div className="form-group col-md-6">
+              <label> <h6 >Παραλήπτης</h6></label>
+              <TextField
+                className="form-control"
+                readOnly value={this.state.Fullname}
+                onChanged={this.handleFullname}
+                errorMessage={(this.state.Fullname.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Παραλήπτης" />
+            </div>
+
+            {/* <div className="form-group col-md-6">
               <label> <h6> Παραλήπτης * </h6></label>
               <div className="form-control" id="PeoplePickerBorder">
                 <PeoplePicker
@@ -232,7 +316,8 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
                   resolveDelay={1000}
                 />
               </div>
-            </div>
+              
+            </div> */}
             <div className="form-group col-md-6">
               <label> <h6> Ημερομηνία Αίτησης</h6></label>
               <TextField className="form-control" readOnly value={this.state.requestDate} onChanged={this.handleRequestDate}
@@ -256,8 +341,12 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
           <div className="form-row" >
             <div className="form-group col-md-6">
               <label> <h6> Αρ. Πρωτ. Εξερχομένου * </h6></label>
-              <TextField className="form-control" value={this.state.referenceNumberOut} onChanged={this.handleReferenceNumberOut}
-                errorMessage={(this.state.referenceNumberOut.length === 0 && this.state.onSubmission === true) ? this.state.required : ""} placeholder="Αρ. Πρωτ. Εξερχομένου " />
+              <TextField
+                className="form-control"
+                value={this.state.referenceNumberOut}
+                onChanged={this.handleReferenceNumberOut}
+                errorMessage={(this.state.referenceNumberOut.length === 0 && this.state.onSubmission === true) ? this.state.required : ""}
+                placeholder="Αρ. Πρωτ. Εξερχομένου " />
             </div>
             <div className="form-group col-md-6">
               <label> <h6> Ημερομηνία Εξερχομένου * </h6></label>
@@ -274,7 +363,6 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
 
           <br></br>
           <div className="form-row" >
-
             <div className="form-group col-md-6 ">
               <label> <h6> Κωδικός Αποκρυπτογράφησης * </h6></label>
               <div className="input-group ">
@@ -293,43 +381,19 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
               <input required={true} className="form-control" type='file' id='fileUploadInput' name='myfile' />
               <button id="fileUpload" name="uFile">upload</button>
             </div>
-
-
           </div>
-
         </div>
 
         <br></br>
-        <PrimaryButton id="btnForm" className="btn btn-dark btn-lg btn-block" onClick={() => {
-          if ($('#fileUploadInput').val() != ""
+        <PrimaryButton id="shareButton" onClick={() => { this.sharingFolder() }}> Share File </PrimaryButton>
 
-            && this.state.userManagerIDs.length >= 1
-            && this.state.referenceNumberOut != ""
-            && this.state.referenceNumberIn
-            && this.state.verificationCode != ""
-            && this.state.referenceNumberOutDate != null
-            && this.state.decryption != ""
-          ) {
-
-            if ($('#date').val() === "") {
-              alert("Παρακαλω επιλέξτε την ημερομηνία")
-            } else {
-
-              this.uploadingFileEventHandlers();
-            }
-
-
-          } else {
-            alert("Παρακαλώ συμπληρώστε όλα τα πεδία")
-          }
-        }} style={{ marginRight: '8px' }}><h5> Υποβολή Αιτήματος </h5> </PrimaryButton>
-        <DefaultButton id="btnFormCancel" className="btn btn-light btn-lg btn-block border" onClick={() => { this.setState({}); }}  > <h5> Εξοδος </h5> </DefaultButton>
+        <PrimaryButton id="btnForm" className="btn btn-dark btn-lg btn-block" onClick={() => { this.formValidation() }} style={{ marginRight: '8px' }}><h5> Υποβολή Αιτήματος </h5> </PrimaryButton>
+        <DefaultButton id="btnFormCancel" className="btn btn-light btn-lg btn-block border" onClick={() => { this.setState({}); }}  > <h5> Ακύρωση Αιτήματος </h5> </DefaultButton>
       </form>
     );
   }
 
   private uploadingFileEventHandlers() {
-
     let fileUpload = document.getElementById("fileUpload")
     let test1 = document.getElementById("fileUploadInput")
 
@@ -338,10 +402,7 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     }
   }
 
-  protected uploadFiles(fileUpload) {
-
-
-    this.createFile();
+  protected async uploadFiles(fileUpload) {
     var day = this.state.requestDate.charAt(0) + this.state.requestDate.charAt(1)
     var month = this.state.requestDate.charAt(3) + this.state.requestDate.charAt(4)
     var year = this.state.requestDate.charAt(6) + this.state.requestDate.charAt(7) + this.state.requestDate.charAt(8) + this.state.requestDate.charAt(9)
@@ -349,28 +410,58 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     const cleanReferenceNumberIn = this.cleanFolderName(this.state.referenceNumberIn)
     const cleanRequest = this.cleanFolderName(this.state.request)
 
-
     let file = fileUpload.files[0];
 
     if (file.size <= 10485760) {
       // small upload
-      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
+      await web
+        .folders
+        .add('/sites/ExternalSharing/SharedFiles/' + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
+        .then(console.log);
+
+      await web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
         .files.add(file.name, file, true)
-        .then(_ => console.log("done"));
+        .then(result => console.log(result)).catch(e => {
+          alert("Problima")
+          return false
+        })
+
+      await sp
+        .web
+        .getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
+        .shareWith(this.state.Email, SharingRole.None, false, false, { subject: 'ΗΔΙΚΑ', body: 'Αγαπητέ παραλήπτη, <br> Σας ενημερώνουμε ότι μπορείτε να παραλάβετε τα στοιχεία που ζητήσατε από την ΗΔΙΚΑ ΑΕ κατεβάζοντας το σχετικό αρχείο από εδώ(link)Πρόκειται για συμπιεσμένο και κρυπτογραφημένο αρχείο. Παρακαλώ επικοινωνήστε με το τμήμα ΧΧΧ στο τηλέφωνο 2132168ΧΧΧ για να λάβετε το απαραίτητο κλειδί αποκρυπτογράφησης Οδηγίες για την ανάπτυξη του περιεχομένου του αρχείου θα βρείτε εδώ(link με οδηγίες και συνδέσμους λήψης εργαλείου αποσυμπίεσης και παραγωγής integrity hash key που θα ανέβουν στο www.idika.gr <br> Παραμένουμε στη διάθεσή σας για περαιτέρω διευκρινήσεις <br> Με εκτίμηση, <br> ΗΔΙΚΑ ΑΕ' })
+        .then((result: SharingResult) => {
+          console.log(result);
+        }).catch(e => {
+          console.error(e);
+        });
 
     } else { // large upload
-      web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
+      await web
+        .folders
+        .add('/sites/ExternalSharing/SharedFiles/' + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
+        .then(console.log);
+      await web.getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
         .files
         .addChunked(file.name, file, data => {
-
         }, true)
         .then(_ => console.log("done!"));
+
+      await sp
+        .web
+        .getFolderByServerRelativeUrl("/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest)
+        .shareWith(this.state.Email, SharingRole.None, false, false, { subject: 'test', body: 'test' })
+        .then((result: SharingResult) => {
+          console.log(result);
+        }).catch(e => {
+          console.error(e);
+        });
 
     }
 
     this.updateItem(year, month, day, cleanReferenceNumberIn, cleanRequest, file.name)
 
-    pnp.sp.web.lists.getByTitle("Files").items.add({
+    await pnp.sp.web.lists.getByTitle("Files").items.add({
       FileName: file.name,
       Path: "https://idikagr.sharepoint.com/sites/ExternalSharing/_layouts/download.aspx?sourceurl=/sites/ExternalSharing/SharedFiles/" + year + month + day + '-' + cleanReferenceNumberIn + '-' + cleanRequest + "/" + file.name,
       RequestId: parseInt(idd),
@@ -381,13 +472,13 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
       Decryption: this.state.decryption,
       // refDateOut: this.state.date.toString()
     }).then((iar: ItemAddResult) => {
-      $("#form").hide()
-      $("#btnForm").hide()
-      $("#btnFormCancel").hide()
+      // $("#form").hide()
+      // $("#btnForm").hide()
+      // $("#btnFormCancel").hide()
       console.log(iar);
     }).then(() => {
       alert("Το αίτημα καταχωρήθηκε επιτυχώς")
-      window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing')
+      // window.location.replace('https://idikagr.sharepoint.com/sites/ExternalSharing/SitePages/Home.aspx')
     })
   }
 
@@ -413,16 +504,13 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
   private _onRenderFooterContent = (): JSX.Element => {
     return (
       <div>
-
         <DefaultButton onClick={this._onClosePanel}>Cancel</DefaultButton>
       </div>
     );
   }
 
   protected cleanFolderName(referenceNumberIn: String) {
-
     const validFolderName = referenceNumberIn.replace(/\s+/gi, '-'); // Replace white space with dash
-
     return validFolderName.replace(/[^a-zA-Z0-9\^α-ωΑ-Ω-άέ-ήί-ό\-]/gi, ''); // Strip any special characterer
   }
 
@@ -565,6 +653,18 @@ export default class AdminForm extends React.Component<IAdminFormProps, IReactSp
     });
   }
 
+
+  /**
+ * This is a function.
+ *
+ * @param {string} year - A string param
+ * @param {string} month - A string param
+ * @param {string} day - A string param
+ * @return {void} 
+ * @example
+ *
+ *     updateItem()
+ */
   private updateItem(_year, _month, _day, _cleanReferenceNumberIn, _cleanReaquest, _file): void {
     var checkboxValue = this.state.defaultChecked ? "Yes" : "No";
     console.log(this.state.defaultChecked);

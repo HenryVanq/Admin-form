@@ -31,4 +31,6 @@ export interface IReactSpFxPnP {
   Email: string;
   Reason: string;
   date: '';
+  receiver: '';
+  departmentPhone: '';
 }
