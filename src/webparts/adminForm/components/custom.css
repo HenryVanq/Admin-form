@@ -38,6 +38,7 @@ button#buttonGenPass {
   margin-top: 0.6em;
 }
 
+
 input#fileUploadInput {
   height: 2.9em;
   border: 0;
@@ -58,3 +59,19 @@ input#date {
 div#id__62 {
   font-weight: 400;
 }
+
+#selectteam {
+  height: 2.88rem!important;
+}
+
+select#selectteam {
+  height: 2.88rem!important;
+}
+
+select.form-control:not([size]):not([multiple]) {
+  height: calc(2.77rem + 2px);
+}
+
+/* .ms-TextField.form-control.root-118 {
+  border: none;
+} */

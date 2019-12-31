@@ -33,4 +33,6 @@ export interface IReactSpFxPnP {
   date: '';
   receiver: '';
   departmentPhone: '';
+  department: '';
+  departmentEmail: '';
 }
