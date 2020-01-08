@@ -29,6 +29,7 @@
     "@types/webpack-env": "1.13.1",
     "i": "^0.3.6",
     "jquery": "^3.4.1",
+    "moment": "^2.24.0",
     "office-ui-fabric-react": "6.189.2",
     "primeicons": "^2.0.0",
     "primereact": "^3.1.9",

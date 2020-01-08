@@ -35,4 +35,5 @@ export interface IReactSpFxPnP {
   departmentPhone: '';
   department: '';
   departmentEmail: '';
+  lastShare: '';
 }
